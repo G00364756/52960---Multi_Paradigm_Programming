@@ -62,20 +62,25 @@ struct Shop createAndStockShop()
 	return shop;
 }
 
-double findProductPrice(struct Shop s,struct Customer c)
+void findProductPrice(struct Shop s, struct Customer* c)
 {
-	for (int i = 0; i < c.index; i++)
-	{
-		struct Product product = s.stock[i].product;
-		char *name = product.name;
-		struct Product cusproduct = c.shoppingList[i].product;
-		char *cusname = cusproduct.name;
-		if (strcmp(name,cusproduct.name) == 0)
+	for (int j = 0; j < s.index; j++)
+	{	
+		for (int i = 0; i < c->index; i++)
 		{
-			return product.price;
+			char *name = s.stock[j].product.name;
+			printf(" name = %s \n", name);
+			char *cusname = c->shoppingList[i].product.name;
+			printf(" cusname = %s \n", cusname);
+			
+			if (strcmp(name,cusname) == 0)
+			{
+				printf(" price = %.2f \n", s.stock[j].product.price);
+				c->shoppingList[i].product.price = s.stock[j].product.price; // somehow need to assign this to customer struct 
+				printf(" price = %.2f \n", c->shoppingList[i].product.price);
+			}
 		}
 	}
-	return -1;
 }
 
 struct Customer createCustomer(struct Shop s, struct Customer c)
@@ -104,41 +109,41 @@ struct Customer createCustomer(struct Shop s, struct Customer c)
 		int quantity = atoi(qu);
 		char *name = malloc(sizeof(char) * 50);
 		strcpy(name, na);
-		double price = findProductPrice(s,c);
-		struct Product product = { name , price};
+		struct Product product = { name };
 		struct ProductStock custOrder = { product, quantity };
 		customer.shoppingList[customer.index++] = custOrder;
 	}      
 return customer;
 }			
 
-void printProduct(struct Product p)
-{
-    printf("-------------\n");
-	printf("PRODUCT NAME: %s \nPRODUCT PRICE: %.2f\n", p.name, p.price);
-	printf("-------------\n");
-}
+// void printProduct(struct Product p)
+// {
+//     printf("-------------\n");
+// 	printf("PRODUCT NAME: %s \nPRODUCT PRICE: %.2f \n", p.name, p.price);
+// 	printf("-------------\n");
+// }
 
-void printShop(struct Shop s)
-{
-	printf("Shop has %.2f in cash\n", s.cash);
-	for (int i = 0; i < s.index; i++)
-	{
-		struct Product product = s.stock[i].product;
-		printProduct(product);
-		printf("The shop has %d of the above\n", s.stock[i].quantity);
-	}
-}
+// void printShop(struct Shop s)
+// {
+// 	printf("Shop has %.2f in cash\n", s.cash);
+// 	for (int i = 0; i < s.index; i++)
+// 	{
+// 		struct Product product = s.stock[i].product;
+// 		printProduct(product);
+// 		printf("The shop has %d of the above\n", s.stock[i].quantity);
+// 	}
+// }
 
 double getTotal(struct Customer c)
 {
+	double z = 0;
 	for (int i = 0; i < c.index; i++)
 	{
-	double sum = 0;
-	sum = sum + (c.shoppingList[i].product.price * c.shoppingList[i].quantity);
-	return sum;
+	double x = c.shoppingList[i].quantity;
+	double y = c.shoppingList[i].product.price;
+	z = z + (y * x);
 	}
-	return 0;
+	return z;
 }
 
 void printCustomer(struct Customer c)
@@ -150,7 +155,7 @@ void printCustomer(struct Customer c)
 		res = getTotal(c);
 		struct Product product = c.shoppingList[i].product;
 		
-		printf("CUSTOMER ORDER: %d of %s \n", c.shoppingList[i].quantity, c.shoppingList[i].product.name);
+		printf("CUSTOMER ORDER: %d of %s at a price of %.2f \n", c.shoppingList[i].quantity, c.shoppingList[i].product.name, c.shoppingList[i].product.price);
 		printf("-------------\n");
 	}
 	printf("The cost of this order is: %.2f", res);
@@ -161,7 +166,10 @@ int main(void)
 
 	struct Shop shop = createAndStockShop();
 	struct Customer customer = createCustomer(shop, customer);
-	printShop(shop);
+	//printShop(shop);
+	struct Customer *ptr_customer;
+	ptr_customer = &customer;
+	findProductPrice(shop, ptr_customer);
 	printCustomer(customer);
 	//double price = findProductPrice(shop, "Coke Can");
 	//printf("%.2f/n", price);
