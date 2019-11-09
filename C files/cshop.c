@@ -141,6 +141,7 @@ return customer;
 // }
 
 // This function gets the total cost of the produce for the customer and determines whether they have enough money to buy the products.
+
 double getTotal(struct Customer c)
 {
 	double z = 0;
@@ -169,18 +170,12 @@ void printCustomer(struct Customer c, struct Customer* custo)
 	printf("The cost of this order is: %.2f \n-------------\n", custo->total);
 }
 
-void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
+int canFillOrder(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 {
-	if (c.total > c.budget)
-	{
-        printf("%s does not have enough money to purchase the items in his/her shopping list.\n", c.cusname );
-		printf("%s has a budget of €%.2f \n", c.cusname, c.budget );
-		printf("The items %s's the shopping list come to a toal of €%.2f\n", c.cusname, c.total );
-	}
-	else
-	{
-		ptr_shop -> cash = s.cash + c.total;
-		for (int j = 0; j < s.index; j++)
+	int result1;
+	int result2;
+	int result3;
+	for (int j = 0; j < s.index; j++)
 		{	
 			for (int i = 0; i < c.index; i++)
 			{
@@ -188,15 +183,85 @@ void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 				char *cusname = c.shoppingList[i].product.name;
 				if (strcmp(name,cusname) == 0)
 				{
-					ptr_shop -> stock[j].quantity = s.stock[j].quantity - c.shoppingList[i].quantity;
-					printf("Shop has %d of %s remaining\n-----------\n", ptr_shop -> stock[j].quantity, ptr_shop -> stock[j].product.name);	
+					
+						if (ptr_shop -> stock[j].quantity < c.shoppingList[i].quantity)
+						{
+							printf("\n shop quantity: %d \n", ptr_shop -> stock[j].quantity);
+							printf("\n customer quantity: %d \n", c.shoppingList[i].quantity);
+							printf("\nThis is returning 1\n");
+							result1 = 0;
+						}
+						else if (ptr_shop -> stock[j].quantity >= c.shoppingList[i].quantity)
+						{
+							printf("\n shop quantity: %d \n", ptr_shop -> stock[j].quantity);
+							printf("\n customer quantity: %d \n", c.shoppingList[i].quantity);
+							printf("\nThis is returning 0\n");
+							result2 = 1;
+						}
 				}
 			}
 		}
-	}
-	printf("The shop's cash is now: %.2f", ptr_shop->cash);
+	result3 = result1 * result2;
+	printf("\n result1: %d\n",result3);
+	return result3;
 }
 
+
+void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
+{
+	int trigger;
+	if (c.total > c.budget)
+	{
+        printf("%s does not have enough money to purchase the items in his/her shopping list.\n", c.cusname );
+		printf("%s has a budget of €%.2f \n", c.cusname, c.budget );
+		printf("The items %s's the shopping list come to a toal of €%.2f\n", c.cusname, c.total );
+	}
+	trigger = canFillOrder(c,s,ptr_shop);
+	printf("\n trigger: %d\n",trigger);
+	for (int z = 0; z < 1; z++)
+		{
+		if (trigger == 1)
+		{
+			printf("still working");
+			ptr_shop -> cash = s.cash + c.total;
+			for (int j = 0; j < s.index; j++)
+			{	
+				for (int i = 0; i < c.index; i++)
+				{
+					char *name = s.stock[j].product.name;
+					char *cusname = c.shoppingList[i].product.name;
+					if (strcmp(name,cusname) == 0)
+					{
+						ptr_shop -> stock[j].quantity = s.stock[j].quantity - c.shoppingList[i].quantity;
+						printf("Shop has %d of %s remaining\n-----------\n", ptr_shop -> stock[j].quantity, ptr_shop -> stock[j].product.name);	
+					}
+				}
+			}
+		}
+		else 
+		{
+			for (int j = 0; j < s.index; j++)
+				{	
+					for (int i = 0; i < c.index; i++)
+					{
+						char *name = s.stock[j].product.name;
+						char *cusname = c.shoppingList[i].product.name;
+						if (strcmp(name,cusname) == 0)
+						{
+							if (ptr_shop -> stock[j].quantity < c.shoppingList[i].quantity)
+							{
+							printf("Shop has %d of %s remaining, the shop does not have enough stock of %s to fill the customers order.\n-----------\n", ptr_shop -> stock[j].quantity, ptr_shop -> stock[j].product.name, ptr_shop -> stock[j].product.name);
+							}
+						}
+					}
+				}
+		}
+	printf("The shop's cash is now: %.2f", ptr_shop->cash);
+	}
+}
+
+// Overwrite the stock csv file to update it with the new quantities and shop cash.
+// Adapted from the following source: https://www.stepbystepjava.com/2018/04/27/creation-writing-csv-file-in-c/
 void overwrite_csv(struct Shop s, struct Shop* ptr_shop)
 {
  	FILE * fp;

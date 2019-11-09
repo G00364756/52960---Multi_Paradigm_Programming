@@ -141,6 +141,7 @@ return customer;
 // }
 
 // This function gets the total cost of the produce for the customer and determines whether they have enough money to buy the products.
+
 double getTotal(struct Customer c)
 {
 	double z = 0;
@@ -169,10 +170,8 @@ void printCustomer(struct Customer c, struct Customer* custo)
 	printf("The cost of this order is: %.2f \n-------------\n", custo->total);
 }
 
-void enoughforPurchase(struct Customer c, struct Shop s)
+void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 {
-	struct Shop *ptr_shop;
-	ptr_shop = &s;
 	if (c.total > c.budget)
 	{
         printf("%s does not have enough money to purchase the items in his/her shopping list.\n", c.cusname );
@@ -199,7 +198,7 @@ void enoughforPurchase(struct Customer c, struct Shop s)
 	printf("The shop's cash is now: %.2f", ptr_shop->cash);
 }
 
-void overwrite_csv(struct Shop s)
+void overwrite_csv(struct Shop s, struct Shop* ptr_shop)
 {
  	FILE * fp;
     char * line = NULL;
@@ -207,10 +206,10 @@ void overwrite_csv(struct Shop s)
     ssize_t read;
 
     fp = fopen("stock.csv", "w+");
-	fprintf(fp,"%.2f\n", s.cash);
-	for (int j = 0; j < s.index; j++)
+	fprintf(fp,"%.2f\n", ptr_shop->cash);
+	for (int j = 0; j < ptr_shop->index; j++)
 	{
-		fprintf(fp,"%s, %.2f, %.2f\n", s.stock[j].product.name, s.stock[j].product.price, s.stock[j].quantity);
+		fprintf(fp,"%s, %.2f, %d \n", ptr_shop -> stock[j].product.name, ptr_shop -> stock[j].product.price, ptr_shop -> stock[j].quantity);
 	}
 	fclose(fp);
 }
@@ -225,8 +224,10 @@ int main(void)
 	ptr_customer = &customer;
 	findProductPrice(shop, ptr_customer);
 	printCustomer(customer, ptr_customer);
-	enoughforPurchase(customer, shop);
-	overwrite_csv(shop);
+	struct Shop *ptr_shop;
+	ptr_shop = &shop;
+	enoughforPurchase(customer, shop, ptr_shop);
+	overwrite_csv(shop, ptr_shop);
 	//double price = findProductPrice(shop, "Coke Can");
 	//printf("%.2f/n", price);
 	
