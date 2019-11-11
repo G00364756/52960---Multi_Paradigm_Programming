@@ -1,0 +1,11 @@
+public void totalofOrder(Customer c) {
+		double total = 0;
+		for (ProductStock productStock : c.getShoppingList()) {
+			Product p = productStock.getProduct();
+			int quantity = productStock.getQuantity();
+			double price = p.getPrice();
+			total =  total + (quantity*price);
+			System.out.println(p.getName() + " costs yeah baby" + price);
+			System.out.println("Total costs" + c.total);
+		}
+		c.setTotal(total);

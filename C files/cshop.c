@@ -216,13 +216,13 @@ void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 		printf("%s has a budget of €%.2f \n", c.cusname, c.budget );
 		printf("The items %s's the shopping list come to a toal of €%.2f\n", c.cusname, c.total );
 	}
+	else{
 	trigger = canFillOrder(c,s,ptr_shop);
 	printf("\n trigger: %d\n",trigger);
 	for (int z = 0; z < 1; z++)
 		{
 		if (trigger == 1)
 		{
-			printf("still working");
 			ptr_shop -> cash = s.cash + c.total;
 			for (int j = 0; j < s.index; j++)
 			{	
@@ -258,6 +258,7 @@ void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 		}
 	printf("The shop's cash is now: %.2f", ptr_shop->cash);
 	}
+	}
 }
 
 // Overwrite the stock csv file to update it with the new quantities and shop cash.
@@ -292,8 +293,6 @@ int main(void)
 	ptr_shop = &shop;
 	enoughforPurchase(customer, shop, ptr_shop);
 	overwrite_csv(shop, ptr_shop);
-	//double price = findProductPrice(shop, "Coke Can");
-	//printf("%.2f/n", price);
 	
     return 0;
 }
