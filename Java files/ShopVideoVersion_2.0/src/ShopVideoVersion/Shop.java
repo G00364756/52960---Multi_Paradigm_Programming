@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Shop {
-
+	// String newLine = System.getProperty("line.separator"); // Putting in a new line when printing to console: https://stackoverflow.com/questions/4008223/print-in-new-line-java
 	private double cash;
 	private ArrayList<ProductStock> stock;
 
@@ -63,12 +63,13 @@ public class Shop {
 			Product stockp = productStock.getProduct();
 			int stockquantity = productStock.getQuantity();
 			test.add(stockp.getName() + ",");
+			test.add(stockp.getPrice() + ",");
 			test.add(String.valueOf(stockquantity));
 			test.add("\r\n");
 		}
 		
 		try {
-	    FileWriter fw = new FileWriter("/Users/aoconnor.CER/Desktop/52960---Multi_Paradigm_Programming/Java files/ShopVideoVersion_2.0/src/ShopVideoVersion/test.csv");
+	    FileWriter fw = new FileWriter("/Users/aoconnor.CER/Desktop/52960---Multi_Paradigm_Programming/Java files/ShopVideoVersion_2.0/src/ShopVideoVersion/stock.csv");
 	    BufferedWriter bw = new BufferedWriter(fw);
 
 	    String collect = test.stream().collect(Collectors.joining(""));
@@ -121,13 +122,10 @@ public class Shop {
 				if (stockp.getName().equals(cusp.getName())) {
 					stockquantity = stockquantity - cusquantity;
 					productStock.setQuantity(stockquantity);
-					//System.out.println(cusquantity + " changed to " + stockquantity);
 			}
 		}		
-		//int newquantity = productStock.getQuantity();
-		//System.out.println("This better be right" + newquantity);
 		}
-		System.out.println("modifyQuantity() inititiated");
+		//System.out.println("modifyQuantity() inititiated");
 }
 	
 	public void processOrder(Customer c) {
@@ -142,22 +140,38 @@ public class Shop {
 			p.setPrice(price);
 		}
 		c.setTotal(total);
-		System.out.println("Total costs " + c.total);
+		System.out.println("The total cost of " + c.getName()+"'s order is €"+ c.total);
 	}
 	
-//	public void DiditSet(Customer c) {
-//		String name;
-//		int quantity;
-//		double price;
-//		
-//		for (ProductStock productStock : stock) {
-//			Product p = productStock.getProduct();
-//			name = p.getName();
-//			quantity = productStock.getQuantity();
-//			price = findPrice(p.getName());
-//			System.out.println("Product name is " + name + " Product Quantity is now "+ quantity + " and product price is " + price);
-//	}
-//	}
+	public int returnTrigger(Customer c, Shop s) {
+		int x = 1;
+		int y = 1;
+		for (ProductStock productStock : stock) {
+			Product stockp = productStock.getProduct();
+			int stockquantity = productStock.getQuantity();
+			for (ProductStock cusproductStock : c.getShoppingList()) {
+				Product cusp = cusproductStock.getProduct();
+				int cusquantity = cusproductStock.getQuantity();
+				if (stockp.getName().equals(cusp.getName())) {
+					if (stockquantity < cusquantity) {
+						System.out.println("Shop quantity:" + stockquantity);
+						System.out.println("Customer quantity:" + cusquantity);
+						x = 0;
+						System.out.println("x for " +stockp.getName() +" is "+ x);
+					}
+					else if(stockquantity >= cusquantity) {
+						System.out.println("Shop quantity:" + stockquantity);
+						System.out.println("Customer quantity:" + cusquantity);
+						y = 1;
+						System.out.println("y for " +stockp.getName() +" is "+ y);
+					}
+				}
+				}
+			}
+		int z = x * y;
+		//System.out.println("Trigger method results in: " + z);
+		return z;
+}
 	
 	public void enoughtoBuy(Customer c, Shop s) {
 		double result = 0;
@@ -165,10 +179,11 @@ public class Shop {
 		double budget = c.getBudget();
 		double total = c.getTotal();
 		if ( budget < total) {
-			System.out.println(c.getName()+"has a budget of" + budget + " does not have enough money to purchase the order of " + total);
+			System.out.println(c.getName()+" has a budget of €" + budget);
+			System.out.println(c.getName()+" does not have enough money to purchase the order of €" + total);
 		}
 		else {
-			int trigger = 1; // develop method to determine value of trigger
+			int trigger = returnTrigger(c,s); // develop method to determine value of trigger
 			for (int z = 0; z < 1; z++) {
 				if (trigger == 1)
 				{
@@ -176,6 +191,23 @@ public class Shop {
 					s.setCash(cash);
 					modifyQuantity(c);
 					modifyCSV(s);	
+				}
+				else {
+					for (ProductStock productStock : stock) {
+						Product stockp = productStock.getProduct();
+						int stockquantity = productStock.getQuantity();
+						for (ProductStock cusproductStock : c.getShoppingList()) {
+							Product cusp = cusproductStock.getProduct();
+							int cusquantity = cusproductStock.getQuantity();
+							if (stockp.getName().equals(cusp.getName())) {
+								if (stockquantity < cusquantity) {
+									System.out.println("The shop has " + stockquantity + " of " +stockp.getName() + " remaining.");
+									System.out.println(c.getName()+" has ordered " + cusquantity + " of " +cusp.getName());
+									System.out.println("The shop does not have enough stock of" + cusp.getName()+ "to fill the customers order." + cusquantity + " of ");
+								}
+							}
+						}
+					}
 				}
 				System.out.println("EnoughtoBuy() inititiated");
 			}
