@@ -188,21 +188,22 @@ int canFillOrder(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 						{
 							printf("\n shop quantity: %d \n", ptr_shop -> stock[j].quantity);
 							printf("\n customer quantity: %d \n", c.shoppingList[i].quantity);
-							printf("\nThis is returning 1\n");
+							//printf("\nThis is returning 1\n");
 							result1 = 0;
 						}
 						else if (ptr_shop -> stock[j].quantity >= c.shoppingList[i].quantity)
 						{
 							printf("\n shop quantity: %d \n", ptr_shop -> stock[j].quantity);
 							printf("\n customer quantity: %d \n", c.shoppingList[i].quantity);
-							printf("\nThis is returning 0\n");
+							//printf("\nThis is returning 0\n");
 							result2 = 1;
 						}
 				}
 			}
 		}
+	printf("\n-------------\n");
 	result3 = result1 * result2;
-	printf("\n result1: %d\n",result3);
+	//printf("\n result1: %d\n",result3);
 	return result3;
 }
 
@@ -218,7 +219,7 @@ void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 	}
 	else{
 	trigger = canFillOrder(c,s,ptr_shop);
-	printf("\n trigger: %d\n",trigger);
+	//printf("\n trigger: %d\n",trigger);
 	for (int z = 0; z < 1; z++)
 		{
 		if (trigger == 1)
@@ -256,6 +257,7 @@ void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 					}
 				}
 		}
+	printf("\n-------------\n");
 	printf("The shop's cash is now: %.2f", ptr_shop->cash);
 	}
 	}
