@@ -122,26 +122,7 @@ struct Customer createCustomer(struct Shop s, struct Customer c)
 return customer;
 }			
 
-// void printProduct(struct Product p)
-// {
-//     printf("-------------\n");
-// 	printf("PRODUCT NAME: %s \nPRODUCT PRICE: %.2f \n", p.name, p.price);
-// 	printf("-------------\n");
-// }
-
-// void printShop(struct Shop s)
-// {
-// 	printf("Shop has %.2f in cash\n", s.cash);
-// 	for (int i = 0; i < s.index; i++)
-// 	{
-// 		struct Product product = s.stock[i].product;
-// 		printProduct(product);
-// 		printf("The shop has %d of the above\n", s.stock[i].quantity);
-// 	}
-// }
-
 // This function gets the total cost of the produce for the customer and determines whether they have enough money to buy the products.
-
 double getTotal(struct Customer c)
 {
 	double z = 0;
@@ -154,6 +135,7 @@ double getTotal(struct Customer c)
 	return z;
 }
 
+// This function prints the Customer name and budget to the console.
 void printCustomer(struct Customer c, struct Customer* custo)
 {
 	printf("-------------\n");
@@ -170,6 +152,7 @@ void printCustomer(struct Customer c, struct Customer* custo)
 	printf("The cost of this order is: %.2f \n-------------\n", custo->total);
 }
 
+// This function determines whether the shop has enough stock to fill the customer's order.
 int canFillOrder(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 {
 	int result1;
@@ -207,7 +190,7 @@ int canFillOrder(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 	return result3;
 }
 
-
+// This function determines whether the customer has enough to purcahse their order.
 void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 {
 	int trigger;
@@ -281,6 +264,7 @@ void overwrite_csv(struct Shop s, struct Shop* ptr_shop)
 	fclose(fp);
 }
 
+//This is the main function which is executed when the code is compiled and run in the terminal.
 int main(void)
 {
 

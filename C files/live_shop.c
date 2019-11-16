@@ -88,6 +88,57 @@ void findProductPrice(struct Shop s, struct Customer* c)
 	}
 }
 
+static inline void ClearInputBuffer() 
+{
+	char c = 0;
+	// Loop over input buffer and consume chars until buffer is empty
+	while ((c = getchar()) != '\n' && c != EOF);
+}
+
+int customer_details(struct Shop s, struct Shop* ptr_shop, struct Customer* c)
+{
+	int zed;
+	printf("Enter your name: ");
+	scanf(" %s", c->cusname);
+	printf("Customer name: %s \n", c->cusname);
+	ClearInputBuffer();
+	printf("Enter budget: ");
+	scanf(" %.2f", c->budget);
+	printf("Customer budget: %.2f \n", c->budget);
+	ClearInputBuffer();
+	printf("Enter the number of products from the list you will be purchasing: ");
+	scanf(" %d", &zed);
+	ClearInputBuffer();
+	for (int m = 0; m < zed; m++)
+	{
+		printf("Enter the name of the product as seen in the stock list: \n");
+		scanf(" %s", c->shoppingList[m].product.name);
+		ClearInputBuffer();
+		printf("Enter the quantity of the product %s that you wish to buy: \n", c-> shoppingList[m].product.name);
+		scanf(" %s", c->shoppingList[m].quantity);
+		ClearInputBuffer();
+	}
+	printf("zed: %s", zed);
+	return zed;
+}
+
+void overwrite_Ordercsv(struct Shop s, struct Shop* ptr_shop, struct Customer* c)
+{
+	int zed = customer_details(s, ptr_shop, c);
+	FILE * fp;
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+    fp = fopen("order.csv", "w+");
+	fprintf(fp,"%s, %.2f\n", c->cusname, c->budget);
+	for (int n = 0; n < zed; n++)
+	{
+		fprintf(fp,"%s, %.2f\n", c->shoppingList[n].product.name, c->shoppingList[n].quantity);
+	}
+	fclose(fp);
+}
+
 // This function creates the Customer from a csv file.
 struct Customer createCustomer(struct Shop s, struct Customer c) 
 {
@@ -122,26 +173,7 @@ struct Customer createCustomer(struct Shop s, struct Customer c)
 return customer;
 }			
 
-// void printProduct(struct Product p)
-// {
-//     printf("-------------\n");
-// 	printf("PRODUCT NAME: %s \nPRODUCT PRICE: %.2f \n", p.name, p.price);
-// 	printf("-------------\n");
-// }
-
-// void printShop(struct Shop s)
-// {
-// 	printf("Shop has %.2f in cash\n", s.cash);
-// 	for (int i = 0; i < s.index; i++)
-// 	{
-// 		struct Product product = s.stock[i].product;
-// 		printProduct(product);
-// 		printf("The shop has %d of the above\n", s.stock[i].quantity);
-// 	}
-// }
-
 // This function gets the total cost of the produce for the customer and determines whether they have enough money to buy the products.
-
 double getTotal(struct Customer c)
 {
 	double z = 0;
@@ -154,6 +186,7 @@ double getTotal(struct Customer c)
 	return z;
 }
 
+// This function prints the Customer name and budget to the console.
 void printCustomer(struct Customer c, struct Customer* custo)
 {
 	printf("-------------\n");
@@ -170,18 +203,13 @@ void printCustomer(struct Customer c, struct Customer* custo)
 	printf("The cost of this order is: %.2f \n-------------\n", custo->total);
 }
 
-void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
+// This function determines whether the shop has enough stock to fill the customer's order.
+int canFillOrder(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 {
-	if (c.total > c.budget)
-	{
-        printf("%s does not have enough money to purchase the items in his/her shopping list.\n", c.cusname );
-		printf("%s has a budget of €%.2f \n", c.cusname, c.budget );
-		printf("The items %s's the shopping list come to a toal of €%.2f\n", c.cusname, c.total );
-	}
-	else
-	{
-		ptr_shop -> cash = s.cash + c.total;
-		for (int j = 0; j < s.index; j++)
+	int result1;
+	int result2;
+	int result3;
+	for (int j = 0; j < s.index; j++)
 		{	
 			for (int i = 0; i < c.index; i++)
 			{
@@ -189,15 +217,88 @@ void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
 				char *cusname = c.shoppingList[i].product.name;
 				if (strcmp(name,cusname) == 0)
 				{
-					ptr_shop -> stock[j].quantity = s.stock[j].quantity - c.shoppingList[i].quantity;
-					printf("Shop has %d of %s remaining\n-----------\n", ptr_shop -> stock[j].quantity, ptr_shop -> stock[j].product.name);	
+					
+						if (ptr_shop -> stock[j].quantity < c.shoppingList[i].quantity)
+						{
+							printf("\n shop quantity: %d \n", ptr_shop -> stock[j].quantity);
+							printf("\n customer quantity: %d \n", c.shoppingList[i].quantity);
+							//printf("\nThis is returning 1\n");
+							result1 = 0;
+						}
+						else if (ptr_shop -> stock[j].quantity >= c.shoppingList[i].quantity)
+						{
+							printf("\n shop quantity: %d \n", ptr_shop -> stock[j].quantity);
+							printf("\n customer quantity: %d \n", c.shoppingList[i].quantity);
+							//printf("\nThis is returning 0\n");
+							result2 = 1;
+						}
 				}
 			}
 		}
-	}
-	printf("The shop's cash is now: %.2f", ptr_shop->cash);
+	printf("\n-------------\n");
+	result3 = result1 * result2;
+	//printf("\n result1: %d\n",result3);
+	return result3;
 }
 
+// This function determines whether the customer has enough to purcahse their order.
+void enoughforPurchase(struct Customer c, struct Shop s, struct Shop* ptr_shop)
+{
+	int trigger;
+	if (c.total > c.budget)
+	{
+        printf("%s does not have enough money to purchase the items in his/her shopping list.\n", c.cusname );
+		printf("%s has a budget of €%.2f \n", c.cusname, c.budget );
+		printf("The items %s's the shopping list come to a toal of €%.2f\n", c.cusname, c.total );
+	}
+	else{
+	trigger = canFillOrder(c,s,ptr_shop);
+	//printf("\n trigger: %d\n",trigger);
+	for (int z = 0; z < 1; z++)
+		{
+		if (trigger == 1)
+		{
+			ptr_shop -> cash = s.cash + c.total;
+			for (int j = 0; j < s.index; j++)
+			{	
+				for (int i = 0; i < c.index; i++)
+				{
+					char *name = s.stock[j].product.name;
+					char *cusname = c.shoppingList[i].product.name;
+					if (strcmp(name,cusname) == 0)
+					{
+						ptr_shop -> stock[j].quantity = s.stock[j].quantity - c.shoppingList[i].quantity;
+						printf("Shop has %d of %s remaining\n-----------\n", ptr_shop -> stock[j].quantity, ptr_shop -> stock[j].product.name);	
+					}
+				}
+			}
+		}
+		else 
+		{
+			for (int j = 0; j < s.index; j++)
+				{	
+					for (int i = 0; i < c.index; i++)
+					{
+						char *name = s.stock[j].product.name;
+						char *cusname = c.shoppingList[i].product.name;
+						if (strcmp(name,cusname) == 0)
+						{
+							if (ptr_shop -> stock[j].quantity < c.shoppingList[i].quantity)
+							{
+							printf("Shop has %d of %s remaining, the shop does not have enough stock of %s to fill the customers order.\n-----------\n", ptr_shop -> stock[j].quantity, ptr_shop -> stock[j].product.name, ptr_shop -> stock[j].product.name);
+							}
+						}
+					}
+				}
+		}
+	printf("\n-------------\n");
+	printf("The shop's cash is now: %.2f", ptr_shop->cash);
+	}
+	}
+}
+
+// Overwrite the stock csv file to update it with the new quantities and shop cash.
+// Adapted from the following source: https://www.stepbystepjava.com/2018/04/27/creation-writing-csv-file-in-c/
 void overwrite_csv(struct Shop s, struct Shop* ptr_shop)
 {
  	FILE * fp;
@@ -214,22 +315,21 @@ void overwrite_csv(struct Shop s, struct Shop* ptr_shop)
 	fclose(fp);
 }
 
+//This is the main function which is executed when the code is compiled and run in the terminal.
 int main(void)
 {
-
 	struct Shop shop = createAndStockShop();
 	struct Customer customer = createCustomer(shop, customer);
 	//printShop(shop);
 	struct Customer *ptr_customer;
 	ptr_customer = &customer;
-	findProductPrice(shop, ptr_customer);
-	printCustomer(customer, ptr_customer);
 	struct Shop *ptr_shop;
 	ptr_shop = &shop;
+	overwrite_Ordercsv(shop, ptr_shop, ptr_customer);
+	findProductPrice(shop, ptr_customer);
+	printCustomer(customer, ptr_customer);
 	enoughforPurchase(customer, shop, ptr_shop);
 	overwrite_csv(shop, ptr_shop);
-	//double price = findProductPrice(shop, "Coke Can");
-	//printf("%.2f/n", price);
 	
     return 0;
 }
