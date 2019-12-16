@@ -1,5 +1,5 @@
 """
-The function returns a string that has a specified character replaced by another cpecified character
+The function returns a string that has a specified character replaced by another defined character,
 if it exists in the string.
 """
 # Initialise with a String

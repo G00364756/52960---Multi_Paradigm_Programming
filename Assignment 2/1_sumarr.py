@@ -19,4 +19,5 @@ def sumarr(Test_arr):
         summed = Test_arr[0]+sumarr(Test_arr[1:])
         return summed
 
+# Print the result of calling the function sumarr on the input array Test_array.
 print("The sum of the array is ", sumarr(Test_array))

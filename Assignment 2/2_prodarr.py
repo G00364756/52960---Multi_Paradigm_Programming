@@ -19,4 +19,5 @@ def prodarr(Test_arr):
         multiplied = Test_arr[0]*prodarr(Test_arr[1:])
         return multiplied
 
+# Print the result of calling the function prodarr on the input array Test_array.
 print("The product of the array is ", prodarr(Test_array))
